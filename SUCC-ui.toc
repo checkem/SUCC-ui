@@ -6,3 +6,4 @@
 ## SavedVariables: SUCC_uiOptions
 
 SUCC-ui.lua
+SUCC-UIParent.lua
