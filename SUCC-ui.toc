@@ -5,5 +5,5 @@
 ## Notes: Why sip if you can |cFFF6A3EFS U C C|cFFFFFFFF?|nUI replacement
 ## SavedVariables: SUCC_uiOptions
 
-SUCC-ui.lua
 SUCC-UIParent.lua
+SUCC-ui.lua

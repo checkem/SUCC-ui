@@ -24,9 +24,9 @@ UIParent_ManageFramePositions = function()
 	if ( ( PetActionBarFrame and PetActionBarFrame:IsShown() ) or ( ShapeshiftBarFrame and ShapeshiftBarFrame:IsShown() ) ) then
 		tinsert(yOffsetFrames, "pet");
 	end
-	if ( ReputationWatchBar:IsShown() and MainMenuExpBar:IsShown() ) then
-		tinsert(yOffsetFrames, "reputation");
-	end
+	-- if ( ReputationWatchBar:IsShown() and MainMenuExpBar:IsShown() ) then
+	-- 	tinsert(yOffsetFrames, "reputation");
+	-- end
 	if ( MainMenuBarMaxLevelBar:IsShown() ) then
 		tinsert(yOffsetFrames, "maxLevel");
 	end

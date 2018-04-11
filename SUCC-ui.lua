@@ -1,5 +1,15 @@
 function SUCC_uiDefaults()
 	SUCC_uiOptions = {}
+	SUCC_uiOptions.stancePages = {}
+	SUCC_uiOptions.multiPages = {}
+	SUCC_uiOptions.stancePages[0] = 3 -- Humanoid form
+	SUCC_uiOptions.stancePages[1] = 4 -- battle stance, bear, stealh
+	SUCC_uiOptions.stancePages[2] = 5 -- defensive stance, seal
+	SUCC_uiOptions.stancePages[3] = 6 -- cat
+	SUCC_uiOptions.stancePages[4] = 7 -- travel
+	SUCC_uiOptions.stancePages[5] = 8 -- mind controlled
+	SUCC_uiOptions.multiPages[1] = 11
+	SUCC_uiOptions.multiPages[2] = 12
 	return SUCC_uiOptions
 end
 
@@ -11,6 +21,7 @@ end
 --  SUCC UI
 
 local SUCC_ui = {}
+SUCC_ui.settings = SUCC_uiDefaults()
 SUCC_ui.texturePath = {}
 SUCC_ui.texturePath.xp = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-xp-bar-regular-51232-nc'
 SUCC_ui.texturePath.slot = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-slot-exact-6440'
@@ -29,16 +40,19 @@ SUCC_ui.xpBar.textureMiddle:SetWidth(512) SUCC_ui.xpBar.textureMiddle:SetHeight(
 SUCC_ui.xpBar.textureMiddle:SetPoint('BOTTOM', SUCC_ui.xpBar)
 SUCC_ui.xpBar.textureMiddle:SetTexture(SUCC_ui.texturePath.xp)
 
+local function SUCC_uiSetHw(f, h, w)
+	f:SetHeight(h)
+	f:SetWidth(w)
+end
+
 local function xpBarSetup(qBar)
 	qBar:ClearAllPoints()
 	qBar:SetParent(SUCC_ui.xpBar)
-	qBar:SetWidth(416)
-	qBar:SetHeight(13)
+	SUCC_uiSetHw(qBar, 13, 416)
 	qBar:SetPoint('BOTTOM', SUCC_ui.xpBar, 'BOTTOM')
 end
 
 xpBarSetup(MainMenuExpBar)
-
 ExhaustionTick:SetParent(MainMenuExpBar)
 xpBarSetup(ReputationWatchBar)
 ReputationWatchBar:Hide()
@@ -137,10 +151,10 @@ ReputationWatchBar_Update = function(newLevel)
 			MainMenuBarMaxLevelBar:Hide();
 		end
 	end
-	if ( visibilityChanged ) then
-		UIParent_ManageFramePositions();
-		updateContainerFrameAnchors();
-	end
+	-- if ( visibilityChanged ) then
+	-- 	UIParent_ManageFramePositions();
+	-- 	updateContainerFrameAnchors();
+	-- end
 end
 
 MainMenuBar:Hide()
@@ -180,12 +194,21 @@ MainMenuBar:SetParent(nil)
 
 function SUCC_uiActionButton_ShowGrid(button)
 	if ( not button ) then
-		button = this;
+		button = this
 	end
-	button.showgrid = button.showgrid+1;
-	getglobal(button:GetName().."NormalTexture"):SetVertexColor(0.5, 0.5, 0.5, 1)
+	button.showgrid = button.showgrid+1
+	button:Show()
+end
 
-	button:Show();
+MultiActionBar_UpdateGrid = function(barName, show)
+	for i=1, NUM_MULTIBAR_BUTTONS do
+		if ( show ) then
+			SUCC_uiActionButton_ShowGrid(getglobal(barName.."Button"..i));
+		else
+			ActionButton_HideGrid(getglobal(barName.."Button"..i));
+		end
+
+	end
 end
 
 local function SUCC_uiActionButton_Update()
@@ -357,60 +380,16 @@ local function SUCC_uiRemoveFrame(a)
 	a:Hide()
 end
 
-local function SUCC_uiReplace()
-	for i=0, 3 do
-		SUCC_uiRemoveFrame(getglobal('ReputationWatchBarTexture'..i))
-		SUCC_uiRemoveFrame(getglobal('ReputationXPBarTexture'..i))
-		SUCC_uiRemoveFrame(getglobal('MainMenuXPBarTexture'..i))
-	end
-	SUCC_uiRemoveFrame(getglobal("BonusActionButton11"))
-	SUCC_uiRemoveFrame(getglobal("BonusActionButton12"))
-	for i=1, 10 do
-		-- REUSE
-		SUCC_ui.actionBar.bonusButtons[i] = getglobal("BonusActionButton"..i)
-		SUCC_ui.actionBar.buttons[i] = getglobal("ActionButton"..i)
-		SUCC_ui.actionBar.buttons[i]:SetParent(SUCC_ui.actionBar.default)
-		SUCC_ui.actionBar.bonusButtons[i]:SetHeight(37)
-		SUCC_ui.actionBar.bonusButtons[i]:SetWidth(37)
-		SUCC_ui.actionBar.buttons[i]:SetNormalTexture(SUCC_ui.texturePath.slot)
-		SUCC_ui.actionBar.bonusButtons[i]:SetNormalTexture(SUCC_ui.texturePath.slot)
-		SUCC_ui.actionBar.buttons[i]:GetNormalTexture():SetHeight(64)
-		SUCC_ui.actionBar.buttons[i]:GetNormalTexture():SetWidth(64)
-		SUCC_ui.actionBar.bonusButtons[i]:GetNormalTexture():SetHeight(64)
-		SUCC_ui.actionBar.bonusButtons[i]:GetNormalTexture():SetWidth(64)
-		SUCC_ui.actionBar.buttons[i]:GetNormalTexture():SetDrawLayer('OVERLAY')
-		SUCC_ui.actionBar.buttons[i]:GetPushedTexture():SetDrawLayer('OVERLAY')
-		SUCC_ui.actionBar.buttons[i]:GetHighlightTexture():SetDrawLayer('ARTWORK')
-		SUCC_ui.actionBar.buttons[i]:GetNormalTexture():SetDrawLayer('OVERLAY')
-		SUCC_ui.actionBar.bonusButtons[i]:GetPushedTexture():SetDrawLayer('OVERLAY')
-		SUCC_ui.actionBar.bonusButtons[i]:GetHighlightTexture():SetDrawLayer('ARTWORK')
-		getglobal("ActionButton"..i..'Cooldown'):SetFrameLevel(5)
-		getglobal("BonusActionButton"..i..'Cooldown'):SetFrameLevel(5)
-		SUCC_ui.actionBar.buttons[i]:SetScript('OnEvent', function() SUCC_uiActionButton_OnEvent(event) end)
-		SUCC_ui.actionBar.bonusButtons[i]:SetScript('OnEvent', function()
-			SUCC_uiActionButton_OnEvent(event)
-			BonusActionButton_OnEvent(event)
-		end)
-		if i > 1 then
-			SUCC_ui.actionBar.bonusButtons[i]:SetPoint('LEFT', SUCC_ui.actionBar.bonusButtons[i-1], 'RIGHT', 4, 0)
-			SUCC_ui.actionBar.buttons[i]:SetPoint('LEFT', SUCC_ui.actionBar.buttons[i-1], 'RIGHT', 4, 0)
-		else
-			SUCC_ui.actionBar.bonusButtons[i]:SetPoint('BOTTOMLEFT', 0, 0)
-			SUCC_ui.actionBar.buttons[i]:SetPoint('BOTTOMLEFT', 0, 0)
-		end
-	end
-end
-
 SUCC_ui.stanceBar = CreateFrame('Frame', nil, UIParent)
 SUCC_ui.stanceBar:SetPoint('BOTTOMLEFT', SUCC_ui.xpBar, 'BOTTOMRIGHT', 10, 0)
 SUCC_ui.stanceBar:SetHeight(16)
 SUCC_ui.stanceBar.textureLeft = SUCC_ui.stanceBar:CreateTexture(nil, 'ARTWORK')
-SUCC_ui.stanceBar.textureLeft:SetWidth(48) SUCC_ui.stanceBar.textureLeft:SetHeight(16)
+SUCC_uiSetHw(SUCC_ui.stanceBar.textureLeft, 16, 48)
 SUCC_ui.stanceBar.textureLeft:SetTexCoord(0.03125, 0.125, 0.5, 1)
 SUCC_ui.stanceBar.textureLeft:SetPoint('BOTTOMRIGHT',SUCC_ui.stanceBar, 'BOTTOMLEFT', 11, 0)
 SUCC_ui.stanceBar.textureLeft:SetTexture(SUCC_ui.texturePath.stanceBar)
 SUCC_ui.stanceBar.textureRight = SUCC_ui.stanceBar:CreateTexture(nil, 'ARTWORK')
-SUCC_ui.stanceBar.textureRight:SetWidth(48) SUCC_ui.stanceBar.textureRight:SetHeight(16)
+SUCC_uiSetHw(SUCC_ui.stanceBar.textureRight, 16, 48)
 SUCC_ui.stanceBar.textureRight:SetTexCoord(0.875, 0.96875, 0.5, 1)
 SUCC_ui.stanceBar.textureRight:SetPoint('BOTTOMLEFT',SUCC_ui.stanceBar, 'BOTTOMRIGHT', -11, 0)
 SUCC_ui.stanceBar.textureRight:SetTexture(SUCC_ui.texturePath.stanceBar)
@@ -421,35 +400,145 @@ SUCC_ui.stanceBar.textureMiddle:SetPoint('BOTTOMLEFT', SUCC_ui.stanceBar, 11, 0)
 SUCC_ui.stanceBar.textureMiddle:SetPoint('BOTTOMRIGHT', SUCC_ui.stanceBar, -11, 0)
 SUCC_ui.stanceBar.textureMiddle:SetTexture(SUCC_ui.texturePath.stanceBar)
 SUCC_ui.stanceBar.textureMark = {}
-SUCC_ui.stanceBar.buttons = {}
+SUCC_ui.stanceBar.pet = {}
+SUCC_ui.stanceBar.pet.done = false
+SUCC_ui.stanceBar.pet.textureMark = {}
 ShapeshiftBar_UpdatePosition = function()
 	-- what
 end
 
+local function SUCC_uiReplace()
+	for i=0, 3 do
+		SUCC_uiRemoveFrame(getglobal('ReputationWatchBarTexture'..i))
+		SUCC_uiRemoveFrame(getglobal('ReputationXPBarTexture'..i))
+		SUCC_uiRemoveFrame(getglobal('MainMenuXPBarTexture'..i))
+	end
+	SUCC_uiRemoveFrame(getglobal("BonusActionButton11"))
+	SUCC_uiRemoveFrame(getglobal("BonusActionButton12"))
+	SUCC_uiRemoveFrame(getglobal("MultiBarLeftButton11"))
+	SUCC_uiRemoveFrame(getglobal("MultiBarLeftButton12"))
+	SUCC_uiRemoveFrame(getglobal("MultiBarRightButton11"))
+	SUCC_uiRemoveFrame(getglobal("MultiBarRightButton12"))
+	NUM_MULTIBAR_BUTTONS = 10
+	SUCC_uiRemoveFrame(MultiBarBottomLeft)
+	SUCC_uiRemoveFrame(MultiBarBottomRight)
+	MultiBarBottomLeft:SetParent(MainMenuBar)
+	MultiBarBottomRight:SetParent(MainMenuBar)
+	MultiBarRight:ClearAllPoints()
+	MultiBarRight:SetPoint('BOTTOMRIGHT', -3, 45)
+	MultiBarLeft:ClearAllPoints()
+	MultiBarLeft:SetPoint('TOPRIGHT', MultiBarRight, 'TOPLEFT', -4, 0)
+	local b = {}
+	local c = {}
+	local d = {}
+	local e = {}
+	for i=1, 10 do
+		-- REUSE
+		b[i] = getglobal("ActionButton"..i)
+		c[i] = getglobal("BonusActionButton"..i)
+		d[i] = getglobal("MultiBarRightButton"..i)
+		e[i] = getglobal("MultiBarLeftButton"..i)
+		b[i]:SetParent(SUCC_ui.actionBar.default)
+		for _, v in ipairs({b[i], c[i], d[i], e[i]}) do
+				SUCC_uiSetHw(v, 37, 37)
+				v:ClearAllPoints()
+				v:SetNormalTexture(SUCC_ui.texturePath.slot)
+				SUCC_uiSetHw(v:GetNormalTexture(), 64, 64)
+				v:GetNormalTexture():SetDrawLayer('OVERLAY')
+				v:GetPushedTexture():SetDrawLayer('OVERLAY')
+				-- v:GetHighlightTexture():SetDrawLayer('ARTWORK')
+				getglobal(v:GetName()..'Cooldown'):SetFrameLevel(5)
+		end
+		if i > 1 then
+			c[i]:SetPoint('LEFT', c[i-1], 'RIGHT', 4, 0)
+			b[i]:SetPoint('LEFT', b[i-1], 'RIGHT', 4, 0)
+			d[i]:SetPoint('TOP', d[i-1], 'BOTTOM', 0, -4)
+			e[i]:SetPoint('TOP', e[i-1], 'BOTTOM', 0, -4)
+		else
+			c[i]:SetPoint('TOPLEFT', 0, 0)
+			b[i]:SetPoint('BOTTOMLEFT', 0, 0)
+			d[i]:SetPoint('TOPLEFT', 0, 0)
+			e[i]:SetPoint('TOPLEFT', 0, 0)
+		end
+		b[i]:SetScript('OnEvent', function() SUCC_uiActionButton_OnEvent(event) end)
+		d[i]:SetScript('OnEvent', function() SUCC_uiActionButton_OnEvent(event) end)
+		e[i]:SetScript('OnEvent', function() SUCC_uiActionButton_OnEvent(event) end)
+		c[i]:SetScript('OnEvent', function()
+			SUCC_uiActionButton_OnEvent(event)
+			BonusActionButton_OnEvent(event)
+		end)
+	end
+end
+
+local OLD_PetActionBar_Update = PetActionBar_Update
+PetActionBar_Update = function()
+	OLD_PetActionBar_Update()
+	local a
+	for i=1, NUM_PET_ACTION_SLOTS, 1 do
+		a = getglobal('PetActionButton'..i)
+		local _, _, b = GetPetActionInfo(i)
+		if b then
+			a:SetNormalTexture(SUCC_ui.texturePath.slot1)
+		else
+			a:SetNormalTexture(SUCC_ui.texturePath.slotBg)
+		end
+	end
+end
+
+local function SUCC_uiPetBarReplace()
+	local b = {}
+	for i=1, NUM_PET_ACTION_SLOTS do
+		b[i] = getglobal('PetActionButton'..i)
+		b[i]:SetParent(SUCC_ui.stanceBar)
+		b[i]:SetNormalTexture(SUCC_ui.texturePath.slot1)
+		SUCC_uiSetHw(b[i]:GetNormalTexture(), 54, 54)
+		b[i]:GetNormalTexture():SetDrawLayer('OVERLAY')
+		if i == 1 then
+				w = 30
+				b[i]:ClearAllPoints()
+				b[i]:SetPoint('BOTTOMLEFT', 0, 8)
+		else
+			b[i]:SetPoint('LEFT', b[i-1], 'RIGHT', 6, 0)
+			w = w + 36
+			if not SUCC_ui.stanceBar.pet.textureMark[i] then
+				SUCC_ui.stanceBar.pet.textureMark[i] = SUCC_ui.stanceBar:CreateTexture(nil, 'OVERLAY')
+				SUCC_uiSetHw(SUCC_ui.stanceBar.pet.textureMark[i], 16, 16)
+				SUCC_ui.stanceBar.pet.textureMark[i]:SetTexCoord(0, 0.03125, 0, 0.5)
+				SUCC_ui.stanceBar.pet.textureMark[i]:SetPoint('TOPRIGHT', b[i], 'BOTTOMLEFT', 5, 2)
+				SUCC_ui.stanceBar.pet.textureMark[i]:SetTexture(SUCC_ui.texturePath.stanceBar)
+			else
+				SUCC_ui.stanceBar.pet.textureMark[i]:Show()
+			end
+		end
+	end
+	SUCC_ui.stanceBar.pet.done = true
+	SUCC_ui.stanceBar:SetWidth(w)
+	SUCC_ui.stanceBar:Show()
+end
 ShapeshiftBar_Update = function()
 	local n = GetNumShapeshiftForms()
+	local b = {}
 	if ( n > 0 ) then
 		local w = 0
 		for i = 1, n do
-			SUCC_ui.stanceBar.buttons[i] = getglobal('ShapeshiftButton'..i)
+			b[i] = getglobal('ShapeshiftButton'..i)
 			getglobal('ShapeshiftButton'..i..'Cooldown'):SetFrameLevel(2)
-			SUCC_ui.stanceBar.buttons[i]:SetParent(SUCC_ui.stanceBar)
-			SUCC_ui.stanceBar.buttons[i]:SetNormalTexture(SUCC_ui.texturePath.slot1)
-			SUCC_ui.stanceBar.buttons[i]:GetNormalTexture():SetWidth(54)
-			SUCC_ui.stanceBar.buttons[i]:GetNormalTexture():SetHeight(54)
-			SUCC_ui.stanceBar.buttons[i]:GetNormalTexture():SetDrawLayer('OVERLAY')
+			b[i]:SetParent(SUCC_ui.stanceBar)
+			b[i]:SetNormalTexture(SUCC_ui.texturePath.slot1)
+			SUCC_uiSetHw(b[i]:GetNormalTexture(), 54, 54)
+			b[i]:GetNormalTexture():SetDrawLayer('OVERLAY')
 			if i == 1 then
 					w = 30
-					SUCC_ui.stanceBar.buttons[i]:ClearAllPoints()
-					SUCC_ui.stanceBar.buttons[i]:SetPoint('BOTTOMLEFT', 0, 8)
+					b[i]:ClearAllPoints()
+					b[i]:SetPoint('BOTTOMLEFT', 0, 8)
 			else
-				SUCC_ui.stanceBar.buttons[i]:SetPoint('LEFT', SUCC_ui.stanceBar.buttons[i-1], 'RIGHT', 6, 0)
+				b[i]:SetPoint('LEFT', b[i-1], 'RIGHT', 6, 0)
 				w = w + 36
 				if not SUCC_ui.stanceBar.textureMark[i] then
-					SUCC_ui.stanceBar.textureMark[i] = SUCC_ui.stanceBar.buttons[i]:CreateTexture(nil, 'OVERLAY')
-					SUCC_ui.stanceBar.textureMark[i]:SetHeight(16) SUCC_ui.stanceBar.textureMark[i]:SetWidth(16)
+					SUCC_ui.stanceBar.textureMark[i] = b[i]:CreateTexture(nil, 'OVERLAY')
+					SUCC_uiSetHw(SUCC_ui.stanceBar.textureMark[i], 16, 16)
 					SUCC_ui.stanceBar.textureMark[i]:SetTexCoord(0, 0.03125, 0, 0.5)
-					SUCC_ui.stanceBar.textureMark[i]:SetPoint('TOPRIGHT', SUCC_ui.stanceBar.buttons[i], 'BOTTOMLEFT', 5, 2)
+					SUCC_ui.stanceBar.textureMark[i]:SetPoint('TOPRIGHT', b[i], 'BOTTOMLEFT', 5, 2)
 					SUCC_ui.stanceBar.textureMark[i]:SetTexture(SUCC_ui.texturePath.stanceBar)
 				else
 					SUCC_ui.stanceBar.textureMark[i]:Show()
@@ -457,29 +546,27 @@ ShapeshiftBar_Update = function()
 			end
 		end
 		SUCC_ui.stanceBar:SetWidth(w)
-		SUCC_ui.stanceBar:Show();
-	else
-		SUCC_ui.stanceBar:Hide();
+		SUCC_ui.stanceBar:Show()
+	elseif not PetHasActionBar() then
+		SUCC_ui.stanceBar:Hide()
 	end
-	ShapeshiftBar_UpdateState();
+	ShapeshiftBar_UpdateState()
 end
 
 -- action bar frame
 
 SUCC_ui.actionBar = CreateFrame('Frame', nil, UIParent)
-SUCC_ui.actionBar:SetWidth(406) SUCC_ui.actionBar:SetHeight(37)
+SUCC_uiSetHw(SUCC_ui.actionBar, 37, 406)
 SUCC_ui.actionBar:SetPoint('BOTTOM', 0, 20)
 SUCC_ui.actionBar.default = CreateFrame('Frame', nil, SUCC_ui.actionBar)
 SUCC_ui.actionBar.default:SetAllPoints()
-SUCC_ui.actionBar.buttons = {}
-SUCC_ui.actionBar.bonusButtons = {}
 BonusActionBarFrame:SetParent(SUCC_ui.actionBar)
 BonusActionBarFrame:ClearAllPoints()
 BonusActionBarFrame:SetAllPoints()
 BonusActionBarTexture0:Hide()
 BonusActionBarTexture1:Hide()
 BONUSACTIONBAR_XPOS = 0
-BONUSACTIONBAR_YPOS = 36
+BONUSACTIONBAR_YPOS = 37
 NUM_BONUS_ACTION_SLOTS = 10
 NUM_ACTIONBAR_BUTTONS = 10
 
@@ -514,13 +601,34 @@ HideBonusActionBar = function()
 		BonusActionBarFrame.mode = 'hide';
 	end
 end
+ActionButton_GetPagedID = function(button)
+	if ( button.isBonus and CURRENT_ACTIONBAR_PAGE == 1 ) then
+		local offset = GetBonusBarOffset();
+		if ( offset == 0 and BonusActionBarFrame and BonusActionBarFrame.lastBonusBar ) then
+			offset = BonusActionBarFrame.lastBonusBar;
+		end
+		return (button:GetID() + ((NUM_ACTIONBAR_PAGES + offset - 1) * NUM_ACTIONBAR_BUTTONS));
+	end
 
-NUM_ACTIONBAR_PAGES = 7
+	local parentName = button:GetParent():GetName();
+	if ( parentName == "MultiBarBottomLeft" ) then
+		return (button:GetID() + ((BOTTOMLEFT_ACTIONBAR_PAGE - 1) * NUM_ACTIONBAR_BUTTONS));
+	elseif ( parentName == "MultiBarBottomRight" ) then
+		return (button:GetID() + ((BOTTOMRIGHT_ACTIONBAR_PAGE - 1) * NUM_ACTIONBAR_BUTTONS));
+	elseif ( parentName == "MultiBarLeft" ) then
+		return (button:GetID() + ((LEFT_ACTIONBAR_PAGE - 1) * NUM_ACTIONBAR_BUTTONS));
+	elseif ( parentName == "MultiBarRight" ) then
+		return (button:GetID() + ((RIGHT_ACTIONBAR_PAGE - 1) * NUM_ACTIONBAR_BUTTONS));
+	else
+		return (button:GetID() + ((CURRENT_ACTIONBAR_PAGE - 1) * NUM_ACTIONBAR_BUTTONS))
+	end
+end
+NUM_ACTIONBAR_PAGES = 1
 local stanceChanged
 local function SUCC_uiBarUpdate(n)
 	if (IsShiftKeyDown()) then
 		if (CURRENT_ACTIONBAR_PAGE == 1 or n) then
-			CURRENT_ACTIONBAR_PAGE = 2 + GetBonusBarOffset()
+			CURRENT_ACTIONBAR_PAGE = SUCC_ui.settings.stancePages[GetBonusBarOffset()]
 			ChangeActionBarPage()
 		end
 	else
@@ -537,14 +645,29 @@ SUCC_uiWatcher:SetScript("OnEvent", function()
 		SUCC_uiBarUpdate(1)
 	elseif event == 'UPDATE_SHAPESHIFT_FORMS' then
 		ShapeshiftBar_Update()
-	elseif event == 'UPDATE_SHAPESHIFT_FORM' then
-		print("==========11============")
+	-- elseif event == 'UPDATE_SHAPESHIFT_FORM' then
+		-- print("==========11============")
+	elseif ( event == 'PET_BAR_UPDATE' or (event == 'UNIT_PET' and arg1 == 'player') ) then
+		if PetHasActionBar() then
+			if not SUCC_ui.stanceBar.pet.done then
+				SUCC_uiPetBarReplace()
+			else
+				SUCC_ui.stanceBar:Show()
+			end
+		elseif GetNumShapeshiftForms() < 1 then
+			SUCC_ui.stanceBar:Hide()
+		end
 	elseif event == 'ADDON_LOADED' and arg1 == 'SUCC-ui' then
 		this:UnregisterEvent('ADDON_LOADED')
 		this:RegisterEvent('UPDATE_BONUS_ACTIONBAR')
 		this:RegisterEvent('UPDATE_SHAPESHIFT_FORMS')
-		this:RegisterEvent('UPDATE_SHAPESHIFT_FORM')
+		-- this:RegisterEvent('UPDATE_SHAPESHIFT_FORM')
 		-- SUCC_uiStanceBar()
+		if PetHasActionBar() then
+			SUCC_uiPetBarReplace()
+		end
+		this:RegisterEvent('PET_BAR_UPDATE')
+		this:RegisterEvent('UNIT_PET')
 		print('|cFFF5A3FFSUCC-ui loaded.')
 		SUCC_uiReplace()
 	end
