@@ -5,12 +5,6 @@ UIParent_ManageFramePositions = function()
 	local xOffsetFrames = {};
 
 	-- Set up flags
-	if ( SHOW_MULTI_ACTIONBAR_1 or SHOW_MULTI_ACTIONBAR_2 ) then
-		tinsert(yOffsetFrames, "bottomEither");
-	end
-	if ( SHOW_MULTI_ACTIONBAR_2) then
-		tinsert(yOffsetFrames, "bottomRight");
-	end
 	if ( SHOW_MULTI_ACTIONBAR_1 ) then
 		tinsert(yOffsetFrames, "bottomLeft");
 	end

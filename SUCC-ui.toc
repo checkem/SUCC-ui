@@ -3,7 +3,8 @@
 ## Author: checkem
 ## Title: SUCC-ui
 ## Notes: Why sip if you can |cFFF6A3EFS U C C|cFFFFFFFF?|nUI replacement
-## SavedVariables: SUCC_uiOptions
+## OptionalDeps: SUCC-bag, cooline
+## SavedVariablesPerCharacter: SUCC_uiOptions
 
 SUCC-UIParent.lua
 SUCC-ui.lua
