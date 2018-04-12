@@ -22,7 +22,7 @@ Xp/reputation bars. Xp bars behaviour is also default. The reputation bar appear
 ## Recommended addons:
 
 ![succbag](https://user-images.githubusercontent.com/17740865/38700607-7f1fb312-3e50-11e8-88cc-59d874991b0d.png)
-[SUCC-bag](https://www.google.com "SUCC-bag - player inventory and bank overhaul addon for world of warcraft 1.12.1") - player inventory and bank overhaul addon.
+[SUCC-bag](https://github.com/checkem/SUCC-bag "SUCC-bag - player inventory and bank overhaul addon for world of warcraft 1.12.1") - player inventory and bank overhaul addon.
 
 ![cooline](https://user-images.githubusercontent.com/17740865/38700627-90c2d0ea-3e50-11e8-8003-211b89e2081b.png)
 [Cooline](https://github.com/shirsig/cooline) - an addon to watch cooldowns. This addon is particularly important, because some important cooldowns may end up in the modified state bar, whose buttons are hidden when shift button is not pressed.
