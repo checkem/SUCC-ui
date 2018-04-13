@@ -9,7 +9,7 @@ function SUCC_uiDefaults()
 	a.stancePages = {}
 	a.multiPages = {}
 	a.stancePages[0] = 3 -- Humanoid form
-	a.stancePages[1] = 4 -- battle stance, bear, stealh
+	a.stancePages[1] = 5 -- battle stance, bear, stealh
 	a.stancePages[2] = 5 -- defensive stance, seal
 	a.stancePages[3] = 6 -- cat
 	a.stancePages[4] = 7 -- travel
@@ -40,11 +40,12 @@ local function SUCC_uiSetupButton(a, b, c, d, e, f) -- button, parent, h/w, nt, 
 	if c then SUCC_uiSetHw(a, c, c) end
 	a:ClearAllPoints()
 	a:SetNormalTexture(d)
+	a:SetFrameLevel(5)
 	SUCC_uiSetHw(a:GetNormalTexture(), e, e)
 	a:GetNormalTexture():SetDrawLayer('OVERLAY')
 	a:GetPushedTexture():SetDrawLayer('OVERLAY')
 	a:GetCheckedTexture():SetDrawLayer('ARTWORK')
-	a:SetFrameLevel(5)
+	getglobal(a:GetName()..'HotKey'):SetDrawLayer('OVERLAY')
 	getglobal(a:GetName()..'Cooldown'):SetFrameLevel(5)
 	if f then
 		a:SetPoint(unpack(f))
@@ -57,7 +58,7 @@ local function SUCC_uiReplace(a)
 	local function _xpBarSetup(k, l) -- frame, parent
 		k:ClearAllPoints()
 		k:SetParent(l)
-		SUCC_uiSetHw(k, 13, 416)
+		SUCC_uiSetHw(k, 13, 418)
 		k:SetPoint('BOTTOM', 0, 0)
 	end
 	local function _stanceButtonSetup(k, l)
@@ -152,6 +153,7 @@ local function SUCC_uiReplace(a)
 	for i=1, NUM_PET_ACTION_SLOTS do
 		v[i] = getglobal('PetActionButton'..i)
 		_stanceButtonSetup(v[i], v[i-1])
+		getglobal('PetActionButton'..i..'AutoCast'):SetFrameLevel(5)
 	end
 	for i=1, NUM_SHAPESHIFT_SLOTS do
 		u[i] = getglobal('ShapeshiftButton'..i)
@@ -174,10 +176,10 @@ end
 local SUCC_ui = {}
 SUCC_ui.settings = SUCC_uiOptions or SUCC_uiDefaults()
 SUCC_ui.texturePath = {}
-SUCC_ui.texturePath.xp = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-xp-bar-regular-51232-nc'
-SUCC_ui.texturePath.slot = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-slot-exact-6440'
-SUCC_ui.texturePath.slotBg = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-slot-rounded-bigger-6440'
-SUCC_ui.texturePath.stanceBar = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-xp-bar-reduced-5123216'
+SUCC_ui.texturePath.xp = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-xp-bar-regular-51232-1.0'
+SUCC_ui.texturePath.slot = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-slot-exact-6440-1.0'
+SUCC_ui.texturePath.slotBg = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-slot-empty-exact-6440-1.0'
+SUCC_ui.texturePath.stanceBar = 'Interface\\AddOns\\SUCC-ui\\Textures\\37-e-xp-bar-reduced-5123216-1.0'
 
 -- SUCC_ui frames
 -- xp bar
